@@ -1,5 +1,6 @@
 let classifier;
 let imageElement;
+let imageThumbnail;
 
 function setup() {
     noCanvas();
@@ -16,11 +17,14 @@ function modelLoaded() {
 
 function handleFile(file) {
     if (file.type === 'image') {
-        if (imageElement) {
-            imageElement.remove();
+        if (imageThumbnail) {
+            imageThumbnail.remove();  // Entfernt das vorherige Thumbnail, wenn ein neues Bild geladen wird
         }
         imageElement = createImg(file.data, '').hide();
-        imageElement.size(100, 100); // Resize the image to create a thumbnail
+        imageThumbnail = createImg(file.data, '').hide();
+        imageThumbnail.size(100, 100); // Resize the image to create a thumbnail
+        imageThumbnail.parent('imageSection'); // Hält das Thumbnail im Ergebnisbereich
+        imageThumbnail.show();
         const dropArea = select('#dropArea');
         dropArea.html('');
         imageElement.parent(dropArea);
@@ -33,13 +37,7 @@ function handleFile(file) {
 function classifyImage() {
     if (imageElement) {
         classifier.classify(imageElement, gotResult);
-        resetDropArea();
     }
-}
-
-function resetDropArea() {
-    const dropArea = select('#dropArea');
-    dropArea.html('Ziehen Sie ein Bild hierher oder klicken Sie, um auszuwählen.');
 }
 
 function gotResult(error, results) {
@@ -48,12 +46,18 @@ function gotResult(error, results) {
     } else {
         console.log(results);
         const confidence = results[0].confidence * 100;
+        const label = results[0].label;
+
         const imageSection = select('#imageSection');
-        imageSection.html('');
-        imageElement.size(100, 100);
-        imageElement.parent(imageSection);
+        imageThumbnail.size(100, 100); // Stellt sicher, dass das Thumbnail weiterhin angezeigt wird
 
         const resultContainer = select('#resultContainer');
-        resultContainer.html('<div class="custom-bar"><div class="confidence-bar" style="width:' + confidence * 4 + 'px"></div><div class="confidence-text">' + nf(confidence, 0, 0) + '%</div></div>');
+        resultContainer.html(`
+            <div class="custom-bar">
+                <div class="confidence-bar" style="width:${confidence * 4}px"></div>
+                <div class="confidence-text">${nf(confidence, 0, 0)}%</div>
+            </div>
+            <p class="label-text">${label}</p>
+        `);
     }
 }
