@@ -12,6 +12,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: relative;
 }
 
 #classifyButton {
@@ -36,7 +37,24 @@ img {
     margin: auto;
 }
 
-.plotly-graph-div {
-    width: 400px !important; /* Fixed width as requested */
-    height: 50px !important; /* Fixed height as requested */
+.custom-bar {
+    width: 400px;
+    height: 50px;
+    background-color: #ccc;
+    position: relative;
+}
+
+.confidence-bar {
+    height: 50px;
+    background-color: blue;
+    position: absolute;
+}
+
+.confidence-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    line-height: 50px;
+    color: white;
+    font-size: 20px;
 }
