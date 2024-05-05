@@ -10,10 +10,13 @@
 </head>
 <body>
     <h1>Bilderklassifikation mit MobileNet und p5.js</h1>
-    <div id="dropArea" style="width: 400px; height: 400px; border: 2px dashed #ccc;">
-        <p>Ziehen Sie ein Bild hierher oder klicken Sie, um auszuwählen.</p>
+    <div id="content">
+        <div id="dropArea">
+            <p>Ziehen Sie ein Bild hierher oder klicken Sie, um auszuwählen.</p>
+        </div>
+        <div id="resultContainer"></div>
     </div>
+    <button id="classifyButton" onclick="classifyImage()">Classify</button>
     <script src="main.js"></script>
-    <div id="resultContainer"></div>
 </body>
 </html>
