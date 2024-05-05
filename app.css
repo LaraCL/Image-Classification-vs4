@@ -58,3 +58,9 @@ img {
     color: white;
     font-size: 20px;
 }
+
+.label-text {
+    font-size: 18px;
+    margin-top: 10px;
+    font-weight: bold;
+}
