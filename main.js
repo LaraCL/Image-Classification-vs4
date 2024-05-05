@@ -18,16 +18,15 @@ function modelLoaded() {
 function handleFile(file) {
     if (file.type === 'image') {
         if (imageThumbnail) {
-            imageThumbnail.remove();  // Entfernt das vorherige Thumbnail, wenn ein neues Bild geladen wird
+            imageThumbnail.remove();  // Remove old thumbnail from the results area
         }
         imageElement = createImg(file.data, '').hide();
         imageThumbnail = createImg(file.data, '').hide();
-        imageThumbnail.size(100, 100); // Resize the image to create a thumbnail
-        imageThumbnail.parent('imageSection'); // Hält das Thumbnail im Ergebnisbereich
-        imageThumbnail.show();
+        imageThumbnail.size(200, 200); // Resize the image to fit the drop area
         const dropArea = select('#dropArea');
         dropArea.html('');
         imageElement.parent(dropArea);
+        imageElement.size(200, 200); // Ensure image fits within the drop area
         imageElement.show();
     } else {
         console.log('Nicht unterstützter Dateityp');
@@ -37,6 +36,7 @@ function handleFile(file) {
 function classifyImage() {
     if (imageElement) {
         classifier.classify(imageElement, gotResult);
+        imageElement.hide(); // Hide image in the drop area after classification
     }
 }
 
@@ -49,7 +49,9 @@ function gotResult(error, results) {
         const label = results[0].label;
 
         const imageSection = select('#imageSection');
-        imageThumbnail.size(100, 100); // Stellt sicher, dass das Thumbnail weiterhin angezeigt wird
+        imageThumbnail.size(100, 100); // Maintain thumbnail size in results
+        imageThumbnail.parent(imageSection);
+        imageThumbnail.show();
 
         const resultContainer = select('#resultContainer');
         resultContainer.html(`
@@ -57,7 +59,7 @@ function gotResult(error, results) {
                 <div class="confidence-bar" style="width:${confidence * 4}px"></div>
                 <div class="confidence-text">${nf(confidence, 0, 0)}%</div>
             </div>
-            <p class="label-text">${label}</p>
+            <p class="label-text" style="text-align: center;">${label}</p>
         `);
     }
 }
