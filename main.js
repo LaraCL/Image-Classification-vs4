@@ -16,14 +16,15 @@ function modelLoaded() {
 
 function handleFile(file) {
     if (file.type === 'image') {
-        const dropText = select('#dropText');
-        dropText.html('');
         if (imageElement) {
             imageElement.remove();
         }
-        imageElement = createImg(file.data, '').parent('dropArea');
-        imageElement.style('max-width', '100%');
-        imageElement.style('max-height', '100%');
+        imageElement = createImg(file.data, '').hide();
+        imageElement.size(100, 100); // Resize the image to create a thumbnail
+        const dropArea = select('#dropArea');
+        dropArea.html('');
+        imageElement.parent(dropArea);
+        imageElement.show();
     } else {
         console.log('Nicht unterstützter Dateityp');
     }
@@ -32,10 +33,6 @@ function handleFile(file) {
 function classifyImage() {
     if (imageElement) {
         classifier.classify(imageElement, gotResult);
-        const imageSection = select('#imageSection');
-        imageSection.html('');
-        imageElement.size(100, 100);
-        imageElement.parent('imageSection');
     }
 }
 
@@ -46,14 +43,14 @@ function gotResult(error, results) {
         console.log(results);
         const resultContainer = select('#resultContainer');
         resultContainer.html('');
-        const labels = results.map(result => result.label);
-        const confidences = results.map(result => result.confidence * 100);
+        const label = results[0].label;
+        const confidence = nf(results[0].confidence * 100, 0, 0); // Rounded to no decimal places
         const data = {
             type: 'bar',
-            x: confidences,
-            y: labels,
+            x: [confidence],
+            y: [label],
             orientation: 'h',
-            text: confidences.map(String),
+            text: [`${confidence}%`],
             textposition: 'auto',
             hoverinfo: 'none',
             marker: {
@@ -65,15 +62,17 @@ function gotResult(error, results) {
             }
         };
         const layout = {
-            title: 'Klassifikationsergebnisse',
+            title: 'Klassifikationsergebnis',
             barmode: 'stack',
             xaxis: {
                 title: 'Confidence in %'
             },
             yaxis: {
-                title: 'Labels'
-            }
+                title: 'Label'
+            },
+            width: 400, // Fixed width
+            height: 50 // Fixed height
         };
-        Plotly.newPlot('resultContainer', [data], layout);
+        Plotly.newPlot(resultContainer.elt, [data], layout);
     }
 }
