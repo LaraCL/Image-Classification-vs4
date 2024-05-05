@@ -1,6 +1,6 @@
 let classifier;
 let imageElement;
-let imageThumbnail;
+let previousThumbnail; // Globale Variable zum Speichern des vorherigen Thumbnails
 
 function setup() {
     noCanvas();
@@ -17,15 +17,21 @@ function modelLoaded() {
 
 function handleFile(file) {
     if (file.type === 'image') {
-        if (imageThumbnail) {
-            imageThumbnail.remove(); // Removes old thumbnail from the result area when new image is loaded
-        }
         imageElement = createImg(file.data, '').hide();
         imageElement.size(400, 400); // Resize image to fit drop area
         const dropArea = select('#dropArea');
         dropArea.html('');
         imageElement.parent(dropArea);
         imageElement.show();
+
+        if (previousThumbnail) {
+            // Display the previous thumbnail in the image section if exists
+            const imageSection = select('#imageSection');
+            imageSection.html(''); // Clear previous content
+            previousThumbnail.size(100, 100);
+            previousThumbnail.parent(imageSection);
+            previousThumbnail.show();
+        }
     } else {
         console.log('Nicht unterstützter Dateityp');
     }
@@ -46,11 +52,8 @@ function gotResult(error, results) {
         const confidence = results[0].confidence * 100;
         const label = results[0].label;
 
-        // Creating a thumbnail for the result section after classification
-        imageThumbnail = createImg(imageElement.elt.src, '').parent('imageSection');
-        imageThumbnail.size(100, 100);
-        imageThumbnail.show();
-
+        // Prepare new thumbnail for the result section
+        previousThumbnail = createImg(imageElement.elt.src, '').hide();
         const resultContainer = select('#resultContainer');
         resultContainer.html(`
             <div class="custom-bar">
@@ -59,5 +62,6 @@ function gotResult(error, results) {
             </div>
             <p class="label-text" style="text-align: center;">${label}</p>
         `);
+        previousThumbnail.show(); // Show new thumbnail in result section
     }
 }
