@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bilderklassifikation mit ml5.js</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/ml5@1.1.1/dist/ml5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Bilderklassifikation mit ml5.js</h1>
+    <div id="content">
+        <div id="classification">
+            <h2>Klassifizierte Bilder</h2>
+            <div id="imageContainer"></div>
+            <div id="resultContainer"></div>
+        </div>
+        <div id="userInput">
+            <h2>Ihr Bild</h2>
+            <input type="file" id="imageUpload" accept="image/*">
+            <button onclick="classifyImage()">Classify</button>
+            <div id="userImageContainer"></div>
+            <div id="userResultContainer"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
