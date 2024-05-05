@@ -16,6 +16,8 @@ function modelLoaded() {
 
 function handleFile(file) {
     if (file.type === 'image') {
+        const dropText = select('#dropText');
+        dropText.html('');
         if (imageElement) {
             imageElement.remove();
         }
@@ -30,6 +32,10 @@ function handleFile(file) {
 function classifyImage() {
     if (imageElement) {
         classifier.classify(imageElement, gotResult);
+        const imageSection = select('#imageSection');
+        imageSection.html('');
+        imageElement.size(100, 100);
+        imageElement.parent('imageSection');
     }
 }
 
