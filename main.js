@@ -33,7 +33,13 @@ function handleFile(file) {
 function classifyImage() {
     if (imageElement) {
         classifier.classify(imageElement, gotResult);
+        resetDropArea();
     }
+}
+
+function resetDropArea() {
+    const dropArea = select('#dropArea');
+    dropArea.html('Ziehen Sie ein Bild hierher oder klicken Sie, um auszuwählen.');
 }
 
 function gotResult(error, results) {
@@ -41,38 +47,13 @@ function gotResult(error, results) {
         console.error(error);
     } else {
         console.log(results);
+        const confidence = results[0].confidence * 100;
+        const imageSection = select('#imageSection');
+        imageSection.html('');
+        imageElement.size(100, 100);
+        imageElement.parent(imageSection);
+
         const resultContainer = select('#resultContainer');
-        resultContainer.html('');
-        const label = results[0].label;
-        const confidence = nf(results[0].confidence * 100, 0, 0); // Rounded to no decimal places
-        const data = {
-            type: 'bar',
-            x: [confidence],
-            y: [label],
-            orientation: 'h',
-            text: [`${confidence}%`],
-            textposition: 'auto',
-            hoverinfo: 'none',
-            marker: {
-                color: 'blue',
-                line: {
-                    color: 'blue',
-                    width: 1.5
-                }
-            }
-        };
-        const layout = {
-            title: 'Klassifikationsergebnis',
-            barmode: 'stack',
-            xaxis: {
-                title: 'Confidence in %'
-            },
-            yaxis: {
-                title: 'Label'
-            },
-            width: 400, // Fixed width
-            height: 50 // Fixed height
-        };
-        Plotly.newPlot(resultContainer.elt, [data], layout);
+        resultContainer.html('<div class="custom-bar"><div class="confidence-bar" style="width:' + confidence * 4 + 'px"></div><div class="confidence-text">' + nf(confidence, 0, 0) + '%</div></div>');
     }
 }
