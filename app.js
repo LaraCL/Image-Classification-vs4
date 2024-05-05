@@ -1,38 +1,38 @@
-window.onload = function() {
-    loadModel();
-};
-
 let classifier;
 
-function loadModel() {
+function setup() {
+    noCanvas();
     classifier = ml5.imageClassifier('MobileNet', modelLoaded);
+    const dropArea = select('#dropArea');
+
+    dropArea.dragOver(() => dropArea.style('background-color', '#ccc'));
+    dropArea.dragLeave(() => dropArea.style('background-color', '#fff'));
+    dropArea.drop(handleFile, () => dropArea.style('background-color', '#fff'));
 }
 
 function modelLoaded() {
     console.log('Model geladen!');
 }
 
-function classifyImage() {
-    const image = document.getElementById('imageUpload').files[0];
-    const imageUrl = URL.createObjectURL(image);
-    document.getElementById('userImageContainer').innerHTML = `<img src="${imageUrl}" id="inputImage">`;
-
-    classifier.classify(document.getElementById('inputImage'), (error, results) => {
-        if (error) {
-            console.error(error);
-            return;
-        }
-        displayResults(results, 'userResultContainer');
-    });
+function handleFile(file) {
+    if (file.type === 'image') {
+        const img = createImg(file.data, '').hide();
+        image(img, 0, 0, width, height);
+        classifier.classify(img, gotResult);
+    } else {
+        console.log('Nicht unterstützter Dateityp');
+    }
 }
 
-function displayResults(results, containerId) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    const chartData = {
-        x: results.map(result => result.label),
-        y: results.map(result => result.confidence),
-        type: 'bar'
-    };
-    Plotly.newPlot(container, [chartData]);
+function gotResult(error, results) {
+    if (error) {
+        console.error(error);
+    } else {
+        console.log(results);
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = `
+            <p>Label: ${results[0].label}</p>
+            <p>Confidence: ${nf(results[0].confidence, 0, 2)}</p>
+        `;
+    }
 }
