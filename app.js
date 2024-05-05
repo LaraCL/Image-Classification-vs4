@@ -1,10 +1,11 @@
 let classifier;
+let imageElement;
+let imageThumbnail;
 
 function setup() {
     noCanvas();
     classifier = ml5.imageClassifier('MobileNet', modelLoaded);
     const dropArea = select('#dropArea');
-
     dropArea.dragOver(() => dropArea.style('background-color', '#ccc'));
     dropArea.dragLeave(() => dropArea.style('background-color', '#fff'));
     dropArea.drop(handleFile, () => dropArea.style('background-color', '#fff'));
@@ -16,11 +17,24 @@ function modelLoaded() {
 
 function handleFile(file) {
     if (file.type === 'image') {
-        const img = createImg(file.data, '').hide();
-        image(img, 0, 0, width, height);
-        classifier.classify(img, gotResult);
+        if (imageThumbnail) {
+            imageThumbnail.remove(); // Removes old thumbnail from the result area when new image is loaded
+        }
+        imageElement = createImg(file.data, '').hide();
+        imageElement.size(400, 400); // Resize image to fit drop area
+        const dropArea = select('#dropArea');
+        dropArea.html('');
+        imageElement.parent(dropArea);
+        imageElement.show();
     } else {
         console.log('Nicht unterstützter Dateityp');
+    }
+}
+
+function classifyImage() {
+    if (imageElement) {
+        classifier.classify(imageElement, gotResult);
+        imageElement.hide(); // Hide image in drop area after classification
     }
 }
 
@@ -29,10 +43,21 @@ function gotResult(error, results) {
         console.error(error);
     } else {
         console.log(results);
-        const resultContainer = document.getElementById('resultContainer');
-        resultContainer.innerHTML = `
-            <p>Label: ${results[0].label}</p>
-            <p>Confidence: ${nf(results[0].confidence, 0, 2)}</p>
-        `;
+        const confidence = results[0].confidence * 100;
+        const label = results[0].label;
+
+        // Creating a thumbnail for the result section after classification
+        imageThumbnail = createImg(imageElement.elt.src, '').parent('imageSection');
+        imageThumbnail.size(100, 100);
+        imageThumbnail.show();
+
+        const resultContainer = select('#resultContainer');
+        resultContainer.html(`
+            <div class="custom-bar">
+                <div class="confidence-bar" style="width:${confidence * 4}px"></div>
+                <div class="confidence-text">${Math.round(confidence)}%</div>
+            </div>
+            <p class="label-text" style="text-align: center;">${label}</p>
+        `);
     }
 }
